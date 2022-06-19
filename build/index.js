@@ -14,16 +14,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = require("fastify");
 const pino = require('pino');
-const Port = process.env.PORT || 7000;
+const Port = process.env.PORT || 3000;
 const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/blogs';
-const index_1 = __importDefault(require("./config/index"));
-const routes_1 = __importDefault(require("./routes/routes"));
+const db_1 = __importDefault(require("./config/db"));
+const autoload_1 = __importDefault(require("@fastify/autoload"));
+const path_1 = require("path");
+const cors_1 = __importDefault(require("@fastify/cors"));
 const server = (0, fastify_1.fastify)({
     logger: pino({ level: 'info' })
 });
 // register plugin below:
-server.register(index_1.default, { uri });
-server.register(routes_1.default);
+server.register(db_1.default, { uri });
+server.register(cors_1.default, {
+    origin: (origin, cb) => {
+        const allowedOrigins = ['http://localhost:3000'];
+        if (allowedOrigins.includes(origin) || !origin) {
+            cb(null, true);
+        }
+        else {
+            cb(new Error('Not allowed by CORS'), false);
+        }
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: true,
+    maxAge: 86400,
+    optionsSuccessStatus: 204,
+});
+void server.register(autoload_1.default, {
+    dir: (0, path_1.join)(__dirname, 'plugins')
+});
+void server.register(autoload_1.default, {
+    dir: (0, path_1.join)(__dirname, 'routes')
+});
 const start = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield server.listen(Port);

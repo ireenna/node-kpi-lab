@@ -5,7 +5,9 @@ const mongoose_1 = require("mongoose");
 exports.PostsSchema = new mongoose_1.Schema({
     title: {
         type: String,
-        required: true
+        required: true,
+        minLength: 3,
+        maxLength: 30
     },
     content: {
         type: String,
@@ -13,13 +15,21 @@ exports.PostsSchema = new mongoose_1.Schema({
     },
     category: {
         type: String,
-        required: true
+        required: true,
+        minLength: 3,
+        maxLength: 20
     },
     tags: {
         type: Array,
         required: false,
-        default: []
-    }
+        default: [],
+        maximum: 15
+    },
+    creator: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
 }, {
     timestamps: true
 });

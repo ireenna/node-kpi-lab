@@ -2,11 +2,10 @@ import { FastifyInstance } from 'fastify';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import fp from 'fastify-plugin';
 import mongoose from 'mongoose';
-import { BlogModel, Blog } from './models/blogs';
+import { User } from './models/user';
 import { PostsModel, Posts } from './models/posts';
 
 export interface Models {
-	Blog: BlogModel;
 	Posts: PostsModel;
 }
 
@@ -39,7 +38,7 @@ const ConnectDB: FastifyPluginAsync<MyPluginOptions> = async (
 			// these options are configurations options for mongoose to prevent mongoose throwing warnings and errors
 		});
 
-		const models: Models = { Blog, Posts };
+		const models: Models = { Posts };
 
 		fastify.decorate('db', { models });
 	} catch (error) {

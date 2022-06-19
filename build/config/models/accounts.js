@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Blog = exports.blogSchema = exports.validateEmail = void 0;
+exports.User = exports.userSchema = exports.validateEmail = void 0;
 const mongoose_1 = require("mongoose");
 const validateEmail = function (email) {
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     return re.test(email);
 };
 exports.validateEmail = validateEmail;
-exports.blogSchema = new mongoose_1.Schema({
+exports.userSchema = new mongoose_1.Schema({
     //_id: Schema.Types.ObjectId,
     userName: {
         type: String,
@@ -24,6 +24,9 @@ exports.blogSchema = new mongoose_1.Schema({
         lowercase: true,
         validate: [exports.validateEmail, 'Please fill a valid email address'],
         maxLength: 25
+    },
+    isAdmin: {
+        type: Boolean
     },
     title: {
         type: String,
@@ -46,7 +49,7 @@ exports.blogSchema = new mongoose_1.Schema({
 }, {
     timestamps: true
 });
-exports.blogSchema.statics.addOne = (doc) => {
-    return new exports.Blog(doc);
+exports.userSchema.statics.addOne = (doc) => {
+    return new exports.User(doc);
 };
-exports.Blog = (0, mongoose_1.model)('Blog', exports.blogSchema);
+exports.User = (0, mongoose_1.model)('User', exports.userSchema);

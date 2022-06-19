@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_plugin_1 = __importDefault(require("fastify-plugin"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const user_1 = require("./models/user");
 const posts_1 = require("./models/posts");
 const ConnectDB = (fastify, options) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -30,7 +29,7 @@ const ConnectDB = (fastify, options) => __awaiter(void 0, void 0, void 0, functi
         //useCreateIndex: true
         // these options are configurations options for mongoose to prevent mongoose throwing warnings and errors
         });
-        const models = { User: user_1.User, Posts: posts_1.Posts };
+        const models = { Posts: posts_1.Posts };
         fastify.decorate('db', { models });
     }
     catch (error) {
