@@ -39,27 +39,29 @@ const __importDefault =
   }
 Object.defineProperty(exports, '__esModule', { value: true })
 const fastify_plugin_1 = __importDefault(require('fastify-plugin'))
-const mongoose_1 = __importDefault(require('mongoose'))
-const posts_1 = require('./models/posts')
-const ConnectDB = (fastify, options) =>
+const got_1 = __importDefault(require('got'))
+const UserRoute = (server, options) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    try {
-      mongoose_1.default.connection.on('connected', () => {
-        fastify.log.info({ actor: 'MongoDB' }, 'connected')
+    server.get('/films', (request, reply) =>
+      __awaiter(void 0, void 0, void 0, function * () {
+        try {
+          const query = request.query
+          let name = ''
+          Object.entries(query).find(([key, value]) => {
+            if (key === 'name') {
+              name = value
+              return true
+            }
+          })
+          const url = `https://api.themoviedb.org/3/search/movie?api_key=a769c1d1893614012adddf3f9aaa8f76&language=en-US&query=${name}&page=1&include_adult=false`
+          const response = yield (0, got_1.default)(url)
+          console.log(response.body)
+          return reply.code(200).send(response.body)
+        } catch (error) {
+          request.log.error(error)
+          return reply.code(400).send(error)
+        }
       })
-      mongoose_1.default.connection.on('disconnected', () => {
-        fastify.log.error({ actor: 'MongoDB' }, 'disconnected')
-      })
-      const db = yield mongoose_1.default.connect(options.uri, {
-        // useNewUrlParser: true,
-        // useUnifiedTopology: true,
-        // useCreateIndex: true
-        // these options are configurations options for mongoose to prevent mongoose throwing warnings and errors
-      })
-      const models = { Posts: posts_1.Posts }
-      fastify.decorate('db', { models })
-    } catch (error) {
-      console.error(error)
-    }
+    )
   })
-exports.default = (0, fastify_plugin_1.default)(ConnectDB)
+exports.default = (0, fastify_plugin_1.default)(UserRoute)

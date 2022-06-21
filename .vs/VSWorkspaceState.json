@@ -1,15 +1,15 @@
 {
   "ExpandedNodes": [
     "",
+    "\\build",
     "\\src",
     "\\src\\config",
     "\\src\\config\\interfaces",
     "\\src\\config\\models",
-    "\\src\\handlers",
     "\\src\\plugins",
     "\\src\\routes",
     "\\src\\validators"
   ],
-  "SelectedNode": "\\src\\routes\\posts.ts",
+  "SelectedNode": "\\src\\config\\db.ts",
   "PreviewInSolutionExplorer": false
 }
