@@ -3,11 +3,16 @@
     "browser": true,
     "es2021": true
   },
-  "extends": [ "standard", "plugin:sonarjs/recommended" ],
+  "extends": [ "eslint:recommended","plugin:sonarjs/recommended" ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest"
   },
   "plugins": [ "@typescript-eslint", "sonarjs" ],
-  "rules": {}
+  "rules": {
+    "interface-name-prefix": "off",
+    "explicit-function-return-type": "off",
+    "explicit-module-boundary-types": "off",
+    "no-explicit-any": "off"
+  }
 }
