@@ -2,7 +2,8 @@ import fp from 'fastify-plugin'
 import { FastifyRequest, FastifyReply } from 'fastify'
 import fjwt, { FastifyJWTOptions } from '@fastify/jwt'
 import { User } from '../config/models/user'
-import { hash, compare } from 'bcrypt'
+import jwtDecode, { JwtPayload } from 'jwt-decode'
+import { hash } from 'bcrypt'
 
 export default fp<FastifyJWTOptions>(async (fastify, opts) => {
   fastify.register(fjwt as any, {
@@ -12,7 +13,8 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
       checkTyp: 'JWT'
     },
     sign: {
-      algorithm: 'HS256'
+        algorithm: 'HS256',
+        expiresIn:'12h'
     }
   })
 
@@ -58,9 +60,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
           name: user!.name,
           email: user!.email,
           avatar: user!.avatar,
-          isAdmin: user!.isAdmin,
-          last_login: user!.lastLogin,
-          token_version: user!.tokenVersion
+          isAdmin: user!.isAdmin
         }
         return {
           access_token: fastify.jwt.sign(payload, fastify.jwt.options.sign)
@@ -104,9 +104,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
           name: user!.name,
           email: user!.email,
           avatar: user!.avatar,
-          isAdmin: user!.isAdmin,
-          last_login: user!.lastLogin,
-          token_version: user!.tokenVersion
+          isAdmin: user!.isAdmin
         }
         const token = fastify.jwt.sign(payload, fastify.jwt.options.sign)
         return { access_token: token }
@@ -115,13 +113,103 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         reply.send(error)
       }
     }
-  )
+    )
+    fastify.decorate("changePassword", async (
+        request: FastifyRequest<{
+            Body: {
+                oldPassword: string;
+                newPassword: string;
+            };
+        }>,
+        reply: FastifyReply
+    ) => {
+        try {
+            const { oldPassword, newPassword } = request.body
+            const token = request.headers.authorization?.replace('Bearer ', '')
+            const ID = jwtDecode<JwtPayload>(token ?? '').sub;
+            const currentUser = await User.findById(ID).exec()
+            if (!currentUser) {
+                reply.code(401)
+                return 'Current user is not valid. Please, relogin.'
+            }
+            const isValidPW = await currentUser.validatePassword(oldPassword)
+            if (!isValidPW) {
+                reply.code(400)
+                return 'Old password is wrong'
+            }
+            const user = await User.findByIdAndUpdate(
+                ID,
+                { password: await hash(newPassword, 10) },
+                { new: true }
+            ).exec()
+
+            const payload = {
+                sub: user!._id,
+                name: user!.name,
+                email: user!.email,
+                avatar: user!.avatar,
+                isAdmin: user!.isAdmin
+            }
+            return {
+                access_token: fastify.jwt.sign(payload, fastify.jwt.options.sign)
+            }
+        } catch (error) {
+            console.log(error)
+            reply.code(500)
+            return error
+        }
+    })
+    fastify.decorate("changePasswordForUser", async (
+        request: FastifyRequest<{
+            Params: {
+                id: string;
+            };
+            Body: {
+                newPassword: string;
+            };
+        }>,
+        reply: FastifyReply
+    ) => {
+        const { id } = request.params
+        const { newPassword } = request.body
+        const userToFind = await User.findById(id)
+        if (userToFind && userToFind.isAdmin) {
+            reply.code(400)
+            return 'You are not allowed to change password of other admins'
+        }
+        if (!userToFind) {
+            reply.code(404)
+            return 'User was not found'
+        }
+        const user = await User.findByIdAndUpdate(
+            id,
+            { password: newPassword },
+            { new: true }
+        ).exec()
+
+        const payload = {
+            sub: user!._id,
+            name: user!.name,
+            email: user!.email,
+            avatar: user!.avatar,
+            isAdmin: user!.isAdmin
+        }
+        return {
+            access_token: fastify.jwt.sign(payload, fastify.jwt.options.sign)
+        }
+    })
+
 })
+
+
+
 
 declare module 'fastify' {
   export interface FastifyInstance {
     jwtauthenticate: any;
     sendTokens: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     registr: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    changePassword: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    changePasswordForUser: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 }

@@ -1,7 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { Posts as Post } from '../config/models/posts'
 import { User } from '../config/models/user'
-// import * as JWT from 'jwt-decode';
 import jwtDecode, { JwtPayload } from 'jwt-decode'
 
 export const getAllPosts = async (

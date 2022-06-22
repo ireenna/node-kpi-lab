@@ -26,22 +26,18 @@ Mongoose представляє спеціальну ODM-бібліотеку (O
 
 Схема БД:
 User:
-name: string;
-email: string;
-password: string;
-avatar: string;
-isAdmin: boolean;
-resetPassword: ResetPassword;
-refreshToken: RefreshToken;
-tokenVersion: number;
-lastLogin?: Date;
-posts: Schema.Types.ObjectId[];
+- name: string;
+- email: string;
+- password: string;
+- avatar: string;
+- isAdmin: boolean;
+- posts: Schema.Types.ObjectId[];
 
 Posts:
-title: string;
-content: string;
-category: string;
-tags: string[];
-createdAt: string;
-updatedAt: string;
-creator: Schema.Types.ObjectId;
+- title: string;
+- content: string;
+- category: string;
+- tags: string[];
+- createdAt: string;
+- updatedAt: string;
+- creator: Schema.Types.ObjectId;

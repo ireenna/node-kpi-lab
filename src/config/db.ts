@@ -3,46 +3,32 @@ import {
   FastifyPluginAsync,
   FastifyPluginOptions
 } from 'fastify'
-
-import fp from 'fastify-plugin'
-import mongoose from 'mongoose'
+import mongoose, { Models } from 'mongoose'
 import { User } from './models/user'
-import { PostsModel, Posts } from './models/posts'
+import { Posts } from './models/posts'
 
-export interface Models {
-  Posts: PostsModel;
-}
 
-export interface Db {
-  models: Models;
-}
-
-// define options
-export interface MyPluginOptions {
-  uri: string;
-}
-
-const ConnectDB: FastifyPluginAsync<MyPluginOptions> = async (
+const ConnectDB: FastifyPluginAsync<{ uri:string }> = async (
   fastify: FastifyInstance,
   options: FastifyPluginOptions
 ) => {
   try {
     mongoose.connection.on('connected', () => {
-      fastify.log.info({ actor: 'MongoDB' }, 'connected')
+      fastify.log.info('MongoDB is connected')
     })
 
     mongoose.connection.on('disconnected', () => {
-      fastify.log.error({ actor: 'MongoDB' }, 'disconnected')
+        fastify.log.error('MongoDB is disconnected')
     })
 
     const db = await mongoose.connect(options.uri, {})
 
-    const models: Models = { Posts }
+    const models: Models = { Posts, User };
 
-    fastify.decorate('db', { models })
+    fastify.decorate('db', { models });
   } catch (error) {
     console.error(error)
   }
 }
 
-export default fp(ConnectDB)
+export default ConnectDB

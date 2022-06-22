@@ -1,6 +1,7 @@
 {
   "ExpandedNodes": [
     "",
+    "\\.husky",
     "\\src",
     "\\src\\config",
     "\\src\\config\\interfaces",
@@ -10,6 +11,6 @@
     "\\src\\routes",
     "\\src\\validators"
   ],
-  "SelectedNode": "\\package.json",
+  "SelectedNode": "\\package-lock.json",
   "PreviewInSolutionExplorer": false
 }

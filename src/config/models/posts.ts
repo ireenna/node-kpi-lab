@@ -1,27 +1,8 @@
-import { Schema, Document, model, Model } from 'mongoose'
+import { Schema, model } from 'mongoose'
+import {IPostsDocument} from "../interfaces/posts";
 
-export interface PostsAttrs {
-  title: string;
-  content: string;
-  category: string;
-  tags: string[];
-}
 
-export interface PostsModel extends Model<PostsDocument> {
-  addOne(doc: PostsAttrs): PostsDocument;
-}
-
-export interface PostsDocument extends Document {
-  title: string;
-  content: string;
-  category: string;
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
-  creator: Schema.Types.ObjectId;
-}
-
-export const PostsSchema: Schema = new Schema(
+export const PostsSchema: Schema<IPostsDocument> = new Schema(
   {
     title: {
       type: String,
@@ -39,12 +20,7 @@ export const PostsSchema: Schema = new Schema(
       minLength: 3,
       maxLength: 20
     },
-    tags: {
-      type: Array,
-      required: false,
-      default: [],
-      maximum: 15
-    },
+    tags: [{ type:String }],
     creator: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -52,12 +28,11 @@ export const PostsSchema: Schema = new Schema(
     }
   },
   {
-    timestamps: true
+      timestamps: {
+          createdAt: 'created_at',
+          updatedAt: 'updated_at' }
   }
 )
 
-PostsSchema.statics.addOne = (doc: PostsAttrs) => {
-  return new Posts(doc)
-}
 
-export const Posts = model<PostsDocument, PostsModel>('Posts', PostsSchema)
+export const Posts = model<IPostsDocument>('Posts', PostsSchema)

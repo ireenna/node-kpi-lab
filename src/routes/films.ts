@@ -7,18 +7,8 @@ import {
 } from 'fastify'
 import fp from 'fastify-plugin'
 import got from 'got'
-import { Db } from '../config/db'
 
-import querystring from 'querystring'
-
-// Declaration merging
-declare module 'fastify' {
-  export interface FastifyInstance {
-    db: Db;
-  }
-}
-
-const UserRoute: FastifyPluginAsync = async (
+const films: FastifyPluginAsync = async (
   server: FastifyInstance,
   options: FastifyPluginOptions
 ) => {
@@ -44,4 +34,4 @@ const UserRoute: FastifyPluginAsync = async (
   })
 }
 
-export default fp(UserRoute)
+export default fp(films)

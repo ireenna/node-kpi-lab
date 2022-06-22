@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose'
 import { IUser } from '../interfaces/user'
-import { IValidate, IVerify } from '../interfaces/auth'
-import { compare, compareSync, hash } from 'bcrypt'
+import { compare, hash } from 'bcrypt'
+import fastify from 'fastify'
 
 export const validateEmail = function (email: string) {
   const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
@@ -28,37 +28,9 @@ const UserSchema = new Schema<IUser>(
       type: String,
       default: ''
     },
-    lastLogin: {
-      type: Date,
-      default: Date.now
-    },
     isAdmin: {
       type: Boolean,
       default: false
-    },
-    resetPassword: {
-      code: {
-        type: String,
-        default: ''
-      },
-      expiresBy: {
-        type: Date,
-        default: ''
-      }
-    },
-    refreshToken: {
-      token: {
-        type: String,
-        default: ''
-      },
-      expiresBy: {
-        type: Date,
-        default: ''
-      }
-    },
-    tokenVersion: {
-      type: Number,
-      default: 0
     },
     posts: [{ type: Schema.Types.ObjectId, ref: 'Posts' }]
   },
@@ -76,34 +48,6 @@ UserSchema.pre('save', async function (next) {
   }
   next()
 })
-
-UserSchema.pre('findOne', async function (next) {
-  await this.model.findOneAndUpdate(
-    this.getFilter().email,
-    { $set: { lastLogin: Date.now() } },
-    { new: true }
-  )
-  next()
-})
-
-UserSchema.methods.verifyCode = async function (
-  code: string | Buffer
-): Promise<IVerify> {
-  const validCode = compare(code, this.resetPassword.code)
-  const codeNotExpired =
-    Date.now() - new Date(this.resetPassword.expiresBy).getTime() < 300000
-  return { validCode, codeNotExpired }
-}
-
-UserSchema.methods.validateRefreshToken = async function (
-  token: any
-): Promise<IValidate> {
-  const validToken = this.refreshToken.token === token
-  const refreshTokenNotExpired =
-    new Date(this.resetPassword.expiresBy).getTime() - Date.now() < 604800000
-  const tokenVersionValid = this.tokenVersion - token.token_version === 1
-  return { validToken, refreshTokenNotExpired, tokenVersionValid }
-}
 
 UserSchema.methods.validatePassword = async function (
   password: string

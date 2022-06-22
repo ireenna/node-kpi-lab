@@ -23,7 +23,7 @@ export const RegisterUserValidate = {
     body: {
       type: 'object',
       properties: {
-        email: { type: 'string', format: 'email', minLength: 6, unique: true },
+        email: { type: 'string', format: 'email', minLength: 6 },
         password: { type: 'string', minLength: 6 },
         name: { type: 'string', minLength: 5 },
         avatar: { type: 'string', default: '' },
@@ -44,7 +44,7 @@ export const RegisterUserValidate = {
 export const EditAccountValidate = {
   type: 'object',
   properties: {
-    email: { type: 'string', format: 'email', minLength: 6, unique: true },
+    email: { type: 'string', format: 'email', minLength: 6},
     name: { type: 'string', minLength: 5 },
     avatar: { type: 'string', default: '' }
   }
@@ -60,7 +60,7 @@ export const ChangeAccountPassword = {
 export const EditUserValidate = {
   type: 'object',
   properties: {
-    email: { type: 'string', format: 'email', minLength: 6, unique: true },
+    email: { type: 'string', format: 'email', minLength: 6},
     name: { type: 'string', minLength: 5 },
     avatar: { type: 'string', default: '' },
     isAdmin: { type: 'boolean' }
