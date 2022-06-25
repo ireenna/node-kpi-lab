@@ -6,12 +6,15 @@ import {
   updateUser,
   deleteUser,
 } from "../handlers/users.handler";
-import { EditUserValidate } from "../validators/auth.validators";
+import { EditUserValidate, ChangePasswordForUser } from "../validators/auth.validators";
 
 const users: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.put(
     "/users/:id/change-password",
-    { onRequest: [fastify.jwtauthenticate, isAdmin] },
+      {
+          onRequest: [fastify.jwtauthenticate, isAdmin],
+          schema: { body: ChangePasswordForUser }
+      },
     fastify.changePasswordForUser
   );
 

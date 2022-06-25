@@ -1,6 +1,10 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { User } from "../config/models/user";
 import jwtDecode, { JwtPayload } from "jwt-decode";
+import {
+    EditAccountValidate
+} from "../validators/auth.validators";
+import { FromSchema } from "json-schema-to-ts";
 
 export const getCurrentAccount = async (
   request: FastifyRequest,
@@ -24,11 +28,7 @@ export const getCurrentAccount = async (
 
 export const UpdateAccount = async (
   request: FastifyRequest<{
-    Body: {
-      name: string;
-      email: string;
-      avatar: string;
-    };
+      Body: FromSchema<typeof EditAccountValidate>;
   }>,
   reply: FastifyReply
 ) => {
@@ -36,10 +36,6 @@ export const UpdateAccount = async (
     const { name, email, avatar } = request.body;
     const token = request.headers.authorization?.replace("Bearer ", "");
     const ID = jwtDecode<JwtPayload>(token ?? "").sub;
-    if (!ID) {
-      reply.code(401);
-      return "Token is not valid. Please, relogin.";
-    }
     const user = await User.findByIdAndUpdate(
       ID,
       { name, email, avatar },
@@ -47,7 +43,7 @@ export const UpdateAccount = async (
     ).exec();
     if (!user) {
       reply.code(401);
-      return "Current user is not valid. Please, relogin.";
+      return "Current user is not valid.";
     }
     return user;
   } catch (error) {

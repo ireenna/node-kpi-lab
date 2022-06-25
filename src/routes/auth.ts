@@ -1,7 +1,5 @@
 import {
-  FastifyPluginAsync,
-  FastifyPluginOptions,
-  FastifyInstance,
+  FastifyPluginAsync
 } from "fastify";
 import {
   LoginUserValidate,
@@ -11,8 +9,8 @@ import fp from "fastify-plugin";
 
 
 export const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
-  fastify.post("/login", LoginUserValidate, fastify.sendTokens);
-  fastify.post("/register", RegisterUserValidate, fastify.registr);
+    fastify.post("/login", { schema: { body: LoginUserValidate}}, fastify.sendTokens);
+    fastify.post("/register", { schema: { body: RegisterUserValidate } }, fastify.registr);
 };
 
 export default fp(auth);

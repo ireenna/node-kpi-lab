@@ -1,6 +1,5 @@
 import {
   FastifyInstance,
-  FastifyPluginOptions,
   FastifyPluginAsync,
   FastifyRequest,
   FastifyReply,

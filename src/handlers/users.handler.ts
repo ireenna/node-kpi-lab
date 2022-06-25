@@ -3,6 +3,10 @@ import { User } from "../config/models/user";
 // import * as JWT from 'jwt-decode';
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import { IUser } from "../config/interfaces/user";
+import { FromSchema } from "json-schema-to-ts";
+import {EditUserValidate } from "../validators/auth.validators";
+
+
 
 export const getAllUsers = async (
   request: FastifyRequest,
@@ -51,12 +55,7 @@ export const updateUser = async (
     Params: {
       id: string;
     };
-    Body: {
-      name: string;
-      email: string;
-      avatar: string;
-      isAdmin: boolean;
-    };
+      Body: FromSchema<typeof EditUserValidate>;
   }>,
 
   reply: FastifyReply
@@ -64,7 +63,7 @@ export const updateUser = async (
   try {
     const { id } = request.params;
     const { name, email, avatar, isAdmin } = request.body;
-    const userToFind = await User.findById(id);
+    const userToFind = await User.findById(id).exec();
     if (userToFind && userToFind.isAdmin) {
       reply.code(400);
       return "You are not allowed to edit admins";
@@ -95,7 +94,7 @@ export const deleteUser = async (
 ) => {
   try {
     const { id } = request.params;
-    const userToFind = await User.findById(id);
+    const userToFind = await User.findById(id).exec();
     if (userToFind && userToFind.isAdmin) {
       reply.code(400);
       return "You are not allowed to delete admins";

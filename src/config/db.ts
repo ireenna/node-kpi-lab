@@ -7,7 +7,11 @@ import mongoose, { Models } from "mongoose";
 import { User } from "./models/user";
 import { Posts } from "./models/posts";
 
-const ConnectDB: FastifyPluginAsync<{ uri: string }> = async (
+interface AppModuleConfig {
+    uri: string;
+}
+
+const ConnectDB: FastifyPluginAsync<AppModuleConfig> = async (
   fastify: FastifyInstance,
   options: FastifyPluginOptions
 ) => {

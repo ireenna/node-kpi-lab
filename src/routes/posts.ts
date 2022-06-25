@@ -7,6 +7,7 @@ import {
   updatePost,
 } from "../handlers/posts.handler";
 import fp from "fastify-plugin";
+import { EditPostValidate, CreatePostValidate } from"../validators/post.validators";
 
 
 const posts: FastifyPluginAsync = async (fastify): Promise<void> => {
@@ -14,11 +15,11 @@ const posts: FastifyPluginAsync = async (fastify): Promise<void> => {
 
   fastify.get("/posts/:id", getPostById);
 
-  fastify.post("/posts", { onRequest: [fastify.jwtauthenticate] }, createPost);
+    fastify.post("/posts", { onRequest: [fastify.jwtauthenticate], schema: { body: CreatePostValidate} }, createPost);
 
   fastify.put(
     "/posts/:id",
-    { onRequest: [fastify.jwtauthenticate] },
+      { onRequest: [fastify.jwtauthenticate], schema: { body: EditPostValidate} },
     updatePost
   );
 

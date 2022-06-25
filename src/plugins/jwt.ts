@@ -4,6 +4,13 @@ import fjwt, { FastifyJWTOptions } from "@fastify/jwt";
 import { User } from "../config/models/user";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import { hash } from "bcrypt";
+import {
+    LoginUserValidate,
+    RegisterUserValidate,
+    ChangeAccountPassword,
+    ChangePasswordForUser
+} from "../validators/auth.validators";
+import { FromSchema } from "json-schema-to-ts";
 
 export default fp<FastifyJWTOptions>(async (fastify, opts) => {
   fastify.register(fjwt as any, {
@@ -32,10 +39,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
     "sendTokens",
     async (
       request: FastifyRequest<{
-        Body: {
-          email: string;
-          password: string;
-        };
+          Body: FromSchema<typeof LoginUserValidate>;
       }>,
 
       reply: FastifyReply
@@ -73,20 +77,14 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
     "registr",
     async (
       request: FastifyRequest<{
-        Body: {
-          email: string;
-          password: string;
-          name: string;
-          avatar:string;
-          isAdmin: boolean;
-        };
+          Body: FromSchema<typeof RegisterUserValidate>;
       }>,
 
       reply: FastifyReply
     ) => {
       try {
         const { password, email, name, avatar, isAdmin } = request.body;
-        const oldUser = await User.findOne({ email });
+        const oldUser = await User.findOne({ email }).exec();
         if (oldUser) {
           return reply.status(409).send("User Already Exist. Please Login");
         }
@@ -115,10 +113,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
     "changePassword",
     async (
       request: FastifyRequest<{
-        Body: {
-          oldPassword: string;
-          newPassword: string;
-        };
+          Body: FromSchema<typeof ChangeAccountPassword>;
       }>,
       reply: FastifyReply
     ) => {
@@ -165,9 +160,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         Params: {
           id: string;
         };
-        Body: {
-          newPassword: string;
-        };
+          Body: FromSchema<typeof ChangePasswordForUser>;
       }>,
       reply: FastifyReply
     ) => {

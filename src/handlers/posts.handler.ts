@@ -2,6 +2,9 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { Posts as Post } from "../config/models/posts";
 import { User } from "../config/models/user";
 import jwtDecode, { JwtPayload } from "jwt-decode";
+import { FromSchema} from "json-schema-to-ts";
+import { EditPostValidate, CreatePostValidate } from "../validators/post.validators";
+
 
 export const getAllPosts = async (
   request: FastifyRequest,
@@ -35,12 +38,7 @@ export const getPostById = async (
 
 export const createPost = async (
   request: FastifyRequest<{
-    Body: {
-      title: string;
-      content: string;
-      category: string;
-      tags: string[];
-    };
+      Body: FromSchema<typeof CreatePostValidate>;
   }>,
   reply: FastifyReply
 ) => {
@@ -48,10 +46,6 @@ export const createPost = async (
     const { title, content, category, tags } = request.body;
     const token = request.headers.authorization?.replace("Bearer ", "");
     const ID = jwtDecode<JwtPayload>(token ?? "").sub;
-    if (!ID) {
-      reply.code(401);
-      return "Token is not valid. Please, relogin.";
-    }
     const post = await Post.create({
       title,
       content,
@@ -59,12 +53,16 @@ export const createPost = async (
       tags,
       creator: ID,
     });
-    const user = await User.findByIdAndUpdate(ID, {
-      $push: {
-        posts: post,
-      },
-    });
-    return post;
+    if (post) {
+    await User.findByIdAndUpdate(ID, {
+          $push: {
+            posts: post,
+          }
+        }).exec();
+        return post;
+
+    }
+    
   } catch (error) {
     console.error(error);
     return error;
@@ -76,12 +74,7 @@ export const updatePost = async (
     Params: {
       id: string;
     };
-    Body: {
-      title: string;
-      content: string;
-      category: string;
-      tags: string[];
-    };
+      Body: FromSchema<typeof EditPostValidate>;
   }>,
 
   reply: FastifyReply
@@ -90,26 +83,25 @@ export const updatePost = async (
     const { id } = request.params;
     const postToFind = await Post.findById(id);
     if (!postToFind) {
-      reply.code(404);
-      return "Post was not found";
+        reply.code(404);
+        return "Post was not found";
+    } else {
+        const token = request.headers.authorization?.replace("Bearer ", "");
+        const ID = jwtDecode<JwtPayload>(token ?? "").sub;
+        const creator = postToFind?.creator.valueOf();
+        if (creator !== ID) {
+            reply.code(400);
+            return "This post is not available to edit for this user";
+        } else {
+            const { title, content, category, tags } = request.body;
+
+            return await Post.findByIdAndUpdate(
+                id,
+                { title, content, category, tags },
+                { new: true }
+            ).exec();
+        }
     }
-    const token = request.headers.authorization?.replace("Bearer ", "");
-    const ID = jwtDecode<JwtPayload>(token ?? "").sub;
-    if (!ID) {
-      reply.code(401);
-      return "Token is not valid. Please, relogin.";
-    }
-    const creator = postToFind?.creator.valueOf();
-    if (creator !== ID) {
-      reply.code(404);
-      return "This post is not available to edit for this user";
-    }
-    const { title, content, category, tags } = request.body;
-    return await Post.findByIdAndUpdate(
-      id,
-      { title, content, category, tags },
-      { new: true }
-    ).exec();
   } catch (error) {
     console.error(error);
     return error;
@@ -126,23 +118,22 @@ export const deletePost = async (
 ) => {
   try {
     const { id } = request.params;
-    const postToFind = await Post.findById(id);
+    const postToFind = await Post.findById(id).exec();
     if (!postToFind) {
-      reply.code(404);
-      return "Post was not found";
+        reply.code(404);
+        return "Post was not found";
+    } else {
+        const token = request.headers.authorization?.replace("Bearer ", "");
+        const ID = jwtDecode<JwtPayload>(token ?? "").sub;
+        const creator = postToFind?.creator.valueOf();
+        if (creator !== ID) {
+          reply.code(400);
+          return "This post is not available to delete for this user";
+        }
+        return await Post.findByIdAndDelete(id).exec();
+
     }
-    const token = request.headers.authorization?.replace("Bearer ", "");
-    const ID = jwtDecode<JwtPayload>(token ?? "").sub;
-    if (!ID) {
-      reply.code(401);
-      return "Token is not valid. Please, relogin.";
-    }
-    const creator = postToFind?.creator.valueOf();
-    if (creator !== ID) {
-      reply.code(404);
-      return "This post is not available to delete for this user";
-    }
-    return await Post.findByIdAndDelete(id).exec();
+    
   } catch (error) {
     console.error(error);
     return error;
