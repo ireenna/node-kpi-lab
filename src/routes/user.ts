@@ -7,6 +7,7 @@ import {
   deleteUser,
 } from "../handlers/users.handler";
 import { EditUserValidate, ChangePasswordForUser } from "../validators/auth.validators";
+import { UserFullResponse, UsersArrayResponse } from "../validators/response.validators";
 
 const users: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.put(
@@ -20,13 +21,13 @@ const users: FastifyPluginAsync = async (fastify): Promise<void> => {
 
   fastify.get(
     "/users",
-    { onRequest: [fastify.jwtauthenticate, isAdmin] },
+    { onRequest: [fastify.jwtauthenticate, isAdmin], schema: { response: UsersArrayResponse } },
     getAllUsers
   );
 
   fastify.get(
     "/users/:id",
-    { onRequest: [fastify.jwtauthenticate, isAdmin] },
+      {onRequest: [fastify.jwtauthenticate, isAdmin], schema: { response: UserFullResponse }},
     getUserById
   );
 
@@ -34,14 +35,14 @@ const users: FastifyPluginAsync = async (fastify): Promise<void> => {
     "/users/:id",
     {
       onRequest: [fastify.jwtauthenticate, isAdmin],
-      schema: { body: EditUserValidate },
+        schema: { body: EditUserValidate, response: UserFullResponse },
     },
     updateUser
   );
 
   fastify.delete(
     "/users/:id",
-    { onRequest: [fastify.jwtauthenticate, isAdmin] },
+      { onRequest: [fastify.jwtauthenticate, isAdmin], schema: { response: UserFullResponse} },
     deleteUser
   );
 };

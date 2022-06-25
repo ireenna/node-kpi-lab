@@ -191,7 +191,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         access_token: fastify.jwt.sign(payload, fastify.jwt.options.sign),
       };
     }
-  );
+    );
 });
 
 declare module "fastify" {
@@ -206,6 +206,6 @@ declare module "fastify" {
     changePasswordForUser: (
       request: FastifyRequest,
       reply: FastifyReply
-    ) => Promise<void>;
+      ) => Promise<void>;
   }
 }
