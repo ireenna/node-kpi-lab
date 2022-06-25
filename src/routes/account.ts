@@ -3,34 +3,35 @@ import {
   FastifyRequest,
   FastifyReply,
     FastifyInstance
-} from 'fastify'
+} from "fastify";
 import {
   EditAccountValidate,
-    ChangeAccountPassword
-} from '../validators/auth.validators'
+  ChangeAccountPassword,
+} from "../validators/auth.validators";
 import { getCurrentAccount, UpdateAccount } from "../handlers/account.handler";
 
-const accounts: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
-    fastify.get('/account',
-        { onRequest: [fastify.jwtauthenticate] },
-        getCurrentAccount
-    );
+const accounts: FastifyPluginAsync = async (fastify): Promise<void> => {
+  fastify.get(
+    "/account",
+    { onRequest: [fastify.jwtauthenticate] },
+    getCurrentAccount
+  );
 
   fastify.put(
-    '/account/change-password',
+    "/account/change-password",
     {
       onRequest: [fastify.jwtauthenticate],
-      schema: { body: ChangeAccountPassword }
+      schema: { body: ChangeAccountPassword },
     },
     fastify.changePassword
-  )
+  );
   fastify.put(
-    '/account',
+    "/account",
     {
       onRequest: [fastify.jwtauthenticate],
-      schema: { body: EditAccountValidate }
+      schema: { body: EditAccountValidate },
     },
     UpdateAccount
-  )
-}
-export default accounts
+  );
+};
+export default accounts;

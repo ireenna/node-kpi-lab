@@ -1,6 +1,5 @@
-import { Schema, model } from 'mongoose'
-import {IPostsDocument} from "../interfaces/posts";
-
+import { Schema, model } from "mongoose";
+import { IPostsDocument } from "../interfaces/posts";
 
 export const PostsSchema: Schema<IPostsDocument> = new Schema(
   {
@@ -8,31 +7,31 @@ export const PostsSchema: Schema<IPostsDocument> = new Schema(
       type: String,
       required: true,
       minLength: 3,
-      maxLength: 30
+      maxLength: 30,
     },
     content: {
       type: String,
-      required: true
+      required: true,
     },
     category: {
       type: String,
       required: true,
       minLength: 3,
-      maxLength: 20
+      maxLength: 20,
     },
-    tags: [{ type:String }],
+    tags: [{ type: String }],
     creator: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
-    }
+      ref: "User",
+      required: true,
+    },
   },
   {
-      timestamps: {
-          createdAt: 'created_at',
-          updatedAt: 'updated_at' }
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
   }
-)
+);
 
-
-export const Posts = model<IPostsDocument>('Posts', PostsSchema)
+export const Posts = model<IPostsDocument>("Posts", PostsSchema);

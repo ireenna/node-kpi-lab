@@ -1,37 +1,37 @@
-import { fastify } from 'fastify'
-import db from './config/db'
-import AutoLoad from '@fastify/autoload'
-import { join } from 'path'
-const pino = require('pino')
-const Port = 3000
-const uri = 'mongodb://localhost:27017/blogs'
-/*import winston from 'winston';*/
+import { fastify } from "fastify";
+import db from "./config/db";
+import AutoLoad from "@fastify/autoload";
+import { join } from "path";
+const pino = require("pino");
+require('dotenv').config();
+
+const port = process.env.PORT || 3000;
+const uri = process.env.MongoDB || "mongodb://localhost:27017/blogs";
 
 const server = fastify({
-  logger: pino({ level: 'info' })
-})
+  logger: pino({ level: "info" }),
+});
 
-server.register(db, { uri })
-
-server.register(AutoLoad, {
-  dir: join(__dirname, 'plugins')
-})
+server.register(db, { uri });
 
 server.register(AutoLoad, {
-  dir: join(__dirname, 'routes')
-})
+  dir: join(__dirname, "plugins"),
+});
+
+server.register(AutoLoad, {
+  dir: join(__dirname, "routes"),
+});
 
 const start = async () => {
   try {
-    await server.listen(Port)
-    console.log('Server started successfully')
+    await server.listen(port);
+    console.log("Server started successfully");
   } catch (err) {
-    server.log.error(err)
-    process.exit(1)
+    server.log.error(err);
+    process.exit(1);
   }
-}
-start()
-
+};
+start();
 
 //var init = (appname: string) => {
 
@@ -64,7 +64,6 @@ start()
 //         format: winston.format.simple(),
 //         handleExceptions: true
 //    }));
-
 
 //    process.on('uncaughtException', function (err) {
 //        console.log("UncaughtException processing: %s", err);
@@ -100,4 +99,3 @@ start()
 //    }
 //}
 //start();
-

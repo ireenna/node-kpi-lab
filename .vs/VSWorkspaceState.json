@@ -3,14 +3,12 @@
     "",
     "\\.husky",
     "\\src",
-    "\\src\\config",
     "\\src\\config\\interfaces",
-    "\\src\\config\\models",
     "\\src\\handlers",
     "\\src\\plugins",
     "\\src\\routes",
     "\\src\\validators"
   ],
-  "SelectedNode": "\\package-lock.json",
+  "SelectedNode": "\\src\\plugins\\jwt.ts",
   "PreviewInSolutionExplorer": false
 }
