@@ -15,8 +15,7 @@ export const getAllPosts = async (
   try {
     return await Post.find({}).exec();
   } catch (error) {
-    console.error(error);
-    reply.send(error);
+    return error;
   }
 };
 
@@ -30,11 +29,12 @@ export const getPostById = async (
 ) => {
   try {
     const post = await Post.findById(request.params.id).exec();
-    if (!post) reply.code(404).send("Post was not found");
+    if (!post)
+        return reply.notFound("Post was not found");
+
     return post;
   } catch (error) {
-    console.error(error);
-    reply.send(error);
+      return error;
   }
 };
 
@@ -56,15 +56,17 @@ export const createPost = async (
       creator: ID,
     });
     if (post) {
-      await User.findByIdAndUpdate(ID, {
-        $push: {
-          posts: post,
-        },
-      }).exec();
-      return post;
+        await User.findByIdAndUpdate(ID,
+            {
+                $push: {
+                    posts: post,
+                },
+            }).exec();
+        return post;
+    } else {
+        return reply.internalServerError();
     }
   } catch (error) {
-    console.error(error);
     return error;
   }
 };
@@ -82,17 +84,15 @@ export const updatePost = async (
   try {
     const { id } = request.params;
     const postToFind = await Post.findById(id);
-    if (!postToFind) {
-      reply.code(404);
-      return "Post was not found";
+      if (!postToFind) {
+          return reply.notFound("Post was not found");
     } else {
       const token = request.headers.authorization?.replace("Bearer ", "");
       const ID = jwtDecode<JwtPayload>(token ?? "").sub;
       const creator = postToFind?.creator.valueOf();
-      if (creator !== ID) {
-        reply.code(400);
-        return "This post is not available to edit for this user";
-      } else {
+          if (creator !== ID) {
+              return reply.unavailableForLegalReasons();
+          } else {
         const { title, content, category, tags } = request.body;
 
         return await Post.findByIdAndUpdate(
@@ -103,7 +103,6 @@ export const updatePost = async (
       }
     }
   } catch (error) {
-    console.error(error);
     return error;
   }
 };
@@ -119,21 +118,18 @@ export const deletePost = async (
   try {
     const { id } = request.params;
     const postToFind = await Post.findById(id).exec();
-    if (!postToFind) {
-      reply.code(404);
-      return "Post was not found";
+      if (!postToFind) {
+          return reply.notFound("Post was not found");
     } else {
       const token = request.headers.authorization?.replace("Bearer ", "");
       const ID = jwtDecode<JwtPayload>(token ?? "").sub;
       const creator = postToFind?.creator.valueOf();
-      if (creator !== ID) {
-        reply.code(400);
-        return "This post is not available to delete for this user";
+          if (creator !== ID) {
+              return reply.unavailableForLegalReasons();
       }
       return await Post.findByIdAndDelete(id).exec();
     }
   } catch (error) {
-    console.error(error);
     return error;
   }
 };

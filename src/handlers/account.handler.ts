@@ -3,7 +3,6 @@ import { User } from "../config/models/user";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import { EditAccountValidate } from "../validators/auth.validators";
 import { FromSchema } from "json-schema-to-ts";
-import { BadRequestError } from "http-errors-enhanced";
 
 export const getCurrentAccount = async (
   request: FastifyRequest,
@@ -13,12 +12,10 @@ export const getCurrentAccount = async (
     const token = request.headers.authorization?.replace("Bearer ", "");
     const ID = jwtDecode<JwtPayload>(token ?? "").sub;
     const currentUser = await User.findById(ID).exec();
-    if (!currentUser) {
-      const error = new BadRequestError();
-      error.id = 400;
-      throw error;
-    }
-    return currentUser;
+      if (!currentUser) {
+          return reply.notFound("Current user is not valid.");
+      }
+    return reply.send(currentUser);
   } catch (error) {
     return error;
   }
@@ -39,11 +36,9 @@ export const UpdateAccount = async (
       { name, email, avatar },
       { new: true }
     ).exec();
-    if (!user) {
-      const error = new BadRequestError();
-      error.id = 400;
-      throw error;
-    }
+      if (!user) {
+          return reply.notFound("Current user is not valid.");
+      }
     return user;
   } catch (error) {
     return error;

@@ -30,7 +30,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
       try {
         await request.jwtVerify();
       } catch (error) {
-        reply.code(401).send(error);
+        return error;
       }
     }
   );
@@ -47,15 +47,13 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
       try {
         const { email, password } = request.body;
         const user = await User.findOne({ email }).exec();
-        if (!user) {
-          reply.code(400);
-          return "Invalid email or password";
+          if (!user) {
+              return reply.badRequest("Invalid email or password");
         }
 
         const isCorrectPassword = await user.validatePassword(password);
         if (!isCorrectPassword) {
-          reply.code(400);
-          return "Invalid email or password";
+            return reply.badRequest("Invalid email or password");
         }
 
         const payload = {
@@ -68,8 +66,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
           access_token: fastify.jwt.sign(payload, fastify.jwt.options.sign),
         };
       } catch (error) {
-        console.error(error);
-        reply.send(error);
+        return error;
       }
     }
   );
@@ -85,8 +82,8 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
       try {
         const { password, email, name, avatar, isAdmin } = request.body;
         const oldUser = await User.findOne({ email }).exec();
-        if (oldUser) {
-          return reply.status(409).send("User Already Exist. Please Login");
+          if (oldUser) {
+              return reply.badRequest("User Already Exist. Please Login");
         }
         const user = await User.create({
           name,
@@ -104,8 +101,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         const token = fastify.jwt.sign(payload, fastify.jwt.options.sign);
         return { access_token: token };
       } catch (error) {
-        console.error(error);
-        reply.send(error);
+          return error;
       }
     }
   );
@@ -122,14 +118,12 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         const token = request.headers.authorization?.replace("Bearer ", "");
         const ID = jwtDecode<JwtPayload>(token ?? "").sub;
         const currentUser = await User.findById(ID).exec();
-        if (!currentUser) {
-          reply.code(401);
-          return "Current user is not valid. Please, relogin.";
+          if (!currentUser) {
+              return reply.badRequest("Current user is not valid. Please, relogin.");
         }
         const isValidPW = await currentUser.validatePassword(oldPassword);
-        if (!isValidPW) {
-          reply.code(400);
-          return "Old password is wrong";
+          if (!isValidPW) {
+              return reply.badRequest("Old password is wrong");
         }
         const user = await User.findByIdAndUpdate(
           ID,
@@ -147,8 +141,6 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
           access_token: fastify.jwt.sign(payload, fastify.jwt.options.sign),
         };
       } catch (error) {
-        console.log(error);
-        reply.code(500);
         return error;
       }
     }
@@ -167,13 +159,11 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
       const { id } = request.params;
       const { newPassword } = request.body;
       const userToFind = await User.findById(id);
-      if (userToFind && userToFind.isAdmin) {
-        reply.code(400);
-        return "You are not allowed to change password of admins";
+        if (userToFind && userToFind.isAdmin) {
+            return reply.unavailableForLegalReasons("You are not allowed to change password of admins");
       }
-      if (!userToFind) {
-        reply.code(404);
-        return "User was not found";
+        if (!userToFind) {
+            return reply.notFound("User was not found");
       }
       const user = await User.findByIdAndUpdate(
         id,

@@ -5,6 +5,7 @@ import { join } from "path";
 import winston from "winston";
 const pino = require("pino");
 require("dotenv").config();
+import fastifySensible from '@fastify/sensible';
 
 const port = process.env.PORT || 3000;
 const uri = process.env.MongoDB || "mongodb://localhost:27017/blogs";
@@ -43,9 +44,8 @@ const logger = winston.createLogger({
   ],
 });
 const server = require("fastify")({ logger });
-
+server.register(fastifySensible);
 server.register(db, { uri });
-
 server.register(AutoLoad, {
   dir: join(__dirname, "plugins"),
 });

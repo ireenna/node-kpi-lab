@@ -22,11 +22,11 @@ export const isAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const token = request.headers.authorization?.replace("Bearer ", "");
     const isAdmin = jwtDecode<IUser>(token ?? "").isAdmin;
-    if (!isAdmin) {
-      reply.code(401).send("Current user doesn't have an access");
+      if (!isAdmin) {
+          return reply.unavailableForLegalReasons();
     }
   } catch (error) {
-    console.error(error);
+    return error;
   }
 };
 
@@ -40,11 +40,10 @@ export const getUserById = async (
 ) => {
   try {
     const user = await User.findById(request.params.id).exec();
-    if (!user) reply.code(404).send("User was not found");
+      if (!user) return reply.notFound("User was not found");
     return user;
   } catch (error) {
-    console.error(error);
-    reply.send(error);
+      return error;
   }
 };
 
@@ -62,22 +61,19 @@ export const updateUser = async (
     const { id } = request.params;
     const { name, email, avatar, isAdmin } = request.body;
     const userToFind = await User.findById(id).exec();
-    if (userToFind && userToFind.isAdmin) {
-      reply.code(400);
-      return "You are not allowed to edit admins";
+      if (userToFind && userToFind.isAdmin) {
+          return reply.unavailableForLegalReasons("You are not allowed to edit admins");
     }
     const userToUpdate = await User.findByIdAndUpdate(
       id,
       { name, email, avatar, isAdmin },
       { new: true }
     ).exec();
-    if (!userToUpdate) {
-      reply.code(404);
-      return "User was not found";
+      if (!userToUpdate) {
+          return reply.notFound("User was not found");
     }
     return userToUpdate;
   } catch (error) {
-    console.error(error);
     return error;
   }
 };
@@ -93,18 +89,15 @@ export const deleteUser = async (
   try {
     const { id } = request.params;
     const userToFind = await User.findById(id).exec();
-    if (userToFind && userToFind.isAdmin) {
-      reply.code(400);
-      return "You are not allowed to delete admins";
+      if (userToFind && userToFind.isAdmin) {
+          return reply.unavailableForLegalReasons("You are not allowed to delete admins");
     }
     const userToDelete = await User.findByIdAndDelete(id).exec();
-    if (!userToDelete) {
-      reply.code(404);
-      return "User was not found";
+      if (!userToDelete) {
+          return reply.notFound("User was not found");
     }
     return userToDelete;
   } catch (error) {
-    console.error(error);
     return error;
   }
 };
