@@ -5,10 +5,10 @@ import { User } from "../config/models/user";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import { hash } from "bcrypt";
 import {
-    LoginUserValidate,
-    RegisterUserValidate,
-    ChangeAccountPassword,
-    ChangePasswordForUser
+  LoginUserValidate,
+  RegisterUserValidate,
+  ChangeAccountPassword,
+  ChangePasswordForUser,
 } from "../validators/auth.validators";
 import { FromSchema } from "json-schema-to-ts";
 
@@ -39,7 +39,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
     "sendTokens",
     async (
       request: FastifyRequest<{
-          Body: FromSchema<typeof LoginUserValidate>;
+        Body: FromSchema<typeof LoginUserValidate>;
       }>,
 
       reply: FastifyReply
@@ -49,7 +49,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         const user = await User.findOne({ email }).exec();
         if (!user) {
           reply.code(400);
-            return "Invalid email or password";
+          return "Invalid email or password";
         }
 
         const isCorrectPassword = await user.validatePassword(password);
@@ -77,7 +77,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
     "registr",
     async (
       request: FastifyRequest<{
-          Body: FromSchema<typeof RegisterUserValidate>;
+        Body: FromSchema<typeof RegisterUserValidate>;
       }>,
 
       reply: FastifyReply
@@ -113,7 +113,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
     "changePassword",
     async (
       request: FastifyRequest<{
-          Body: FromSchema<typeof ChangeAccountPassword>;
+        Body: FromSchema<typeof ChangeAccountPassword>;
       }>,
       reply: FastifyReply
     ) => {
@@ -133,7 +133,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         }
         const user = await User.findByIdAndUpdate(
           ID,
-            { hashPassword: await hash(newPassword, 10) },
+          { hashPassword: await hash(newPassword, 10) },
           { new: true }
         ).exec();
 
@@ -160,7 +160,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         Params: {
           id: string;
         };
-          Body: FromSchema<typeof ChangePasswordForUser>;
+        Body: FromSchema<typeof ChangePasswordForUser>;
       }>,
       reply: FastifyReply
     ) => {
@@ -191,7 +191,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         access_token: fastify.jwt.sign(payload, fastify.jwt.options.sign),
       };
     }
-    );
+  );
 });
 
 declare module "fastify" {
@@ -206,6 +206,6 @@ declare module "fastify" {
     changePasswordForUser: (
       request: FastifyRequest,
       reply: FastifyReply
-      ) => Promise<void>;
+    ) => Promise<void>;
   }
 }

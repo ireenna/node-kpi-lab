@@ -1,11 +1,9 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { User } from "../config/models/user";
 import jwtDecode, { JwtPayload } from "jwt-decode";
-import {
-    EditAccountValidate
-} from "../validators/auth.validators";
+import { EditAccountValidate } from "../validators/auth.validators";
 import { FromSchema } from "json-schema-to-ts";
-import { BadRequestError } from 'http-errors-enhanced'
+import { BadRequestError } from "http-errors-enhanced";
 
 export const getCurrentAccount = async (
   request: FastifyRequest,
@@ -15,12 +13,12 @@ export const getCurrentAccount = async (
     const token = request.headers.authorization?.replace("Bearer ", "");
     const ID = jwtDecode<JwtPayload>(token ?? "").sub;
     const currentUser = await User.findById(ID).exec();
-      if (!currentUser) {
-          const error = new BadRequestError();
-          error.id = 400;
-          throw error;
-      }
-      return currentUser;
+    if (!currentUser) {
+      const error = new BadRequestError();
+      error.id = 400;
+      throw error;
+    }
+    return currentUser;
   } catch (error) {
     return error;
   }
@@ -28,7 +26,7 @@ export const getCurrentAccount = async (
 
 export const UpdateAccount = async (
   request: FastifyRequest<{
-      Body: FromSchema<typeof EditAccountValidate>;
+    Body: FromSchema<typeof EditAccountValidate>;
   }>,
   reply: FastifyReply
 ) => {
@@ -42,9 +40,9 @@ export const UpdateAccount = async (
       { new: true }
     ).exec();
     if (!user) {
-        const error = new BadRequestError();
-        error.id = 400;
-        throw error;
+      const error = new BadRequestError();
+      error.id = 400;
+      throw error;
     }
     return user;
   } catch (error) {

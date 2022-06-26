@@ -8,7 +8,7 @@ import { User } from "./models/user";
 import { Posts } from "./models/posts";
 
 interface AppModuleConfig {
-    uri: string;
+  uri: string;
 }
 
 const ConnectDB: FastifyPluginAsync<AppModuleConfig> = async (

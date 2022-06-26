@@ -2,22 +2,23 @@ import {
   FastifyPluginAsync,
   FastifyRequest,
   FastifyReply,
-    FastifyInstance
+  FastifyInstance,
 } from "fastify";
 import {
   EditAccountValidate,
   ChangeAccountPassword,
 } from "../validators/auth.validators";
-import {
-    UserResponse
-} from "../validators/response.validators";
+import { UserResponse } from "../validators/response.validators";
 
 import { getCurrentAccount, UpdateAccount } from "../handlers/account.handler";
 
 const accounts: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     "/account",
-      { onRequest: [fastify.jwtauthenticate], schema: { response: UserResponse} },
+    {
+      onRequest: [fastify.jwtauthenticate],
+      schema: { response: UserResponse },
+    },
     getCurrentAccount
   );
 
@@ -33,7 +34,7 @@ const accounts: FastifyPluginAsync = async (fastify): Promise<void> => {
     "/account",
     {
       onRequest: [fastify.jwtauthenticate],
-        schema: { body: EditAccountValidate, response: UserResponse },
+      schema: { body: EditAccountValidate, response: UserResponse },
     },
     UpdateAccount
   );
