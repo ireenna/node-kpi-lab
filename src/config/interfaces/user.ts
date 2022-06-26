@@ -1,4 +1,3 @@
-import { FastifyRequest } from "fastify";
 import { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
@@ -8,5 +7,5 @@ export interface IUser extends Document {
   avatar: string;
   isAdmin: boolean;
   posts: Schema.Types.ObjectId[];
-  validatePassword(password: string): Promise<boolean>;
+  validatePassword(password: string): Promise<boolean>; //eslint-disable-line no-unused-vars
 }

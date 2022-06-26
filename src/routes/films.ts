@@ -13,13 +13,17 @@ const films: FastifyPluginAsync = async (server: FastifyInstance) => {
     try {
       const query = request.query as Object;
       let name = "";
-
-      Object.entries(query).find(([key, value]) => {
+      console.log(query);
+      const isFound = Object.entries(query).find(([key, value]) => {
         if (key === "name") {
           name = value;
           return true;
         }
       });
+
+      if (!isFound) {
+        return reply.badRequest();
+      }
       const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${name}&page=1&include_adult=false`;
       const response = await got(url);
       return reply.code(200).send(response.body);

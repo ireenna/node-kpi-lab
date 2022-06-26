@@ -24,7 +24,7 @@ const ConnectDB: FastifyPluginAsync<AppModuleConfig> = async (
       fastify.log.error("MongoDB is disconnected");
     });
 
-    const db = await mongoose.connect(options.uri, {});
+    await mongoose.connect(options.uri, {});
 
     const models: Models = { Posts, User };
 

@@ -1,9 +1,4 @@
-import {
-  FastifyPluginAsync,
-  FastifyRequest,
-  FastifyReply,
-  FastifyInstance,
-} from "fastify";
+import { FastifyPluginAsync } from "fastify";
 import {
   EditAccountValidate,
   ChangeAccountPassword,

@@ -17,20 +17,17 @@ import {
 } from "../validators/response.validators";
 
 const posts: FastifyPluginAsync = async (fastify): Promise<void> => {
-  fastify.get(
-    "/posts",
-    { schema: { response: PostArrayResponse } },
-    getAllPosts
-  );
+  const root = "/posts";
+  fastify.get(root, { schema: { response: PostArrayResponse } }, getAllPosts);
 
   fastify.get(
-    "/posts/:id",
+    root + "/:id",
     { schema: { response: PostResponse } },
     getPostById
   );
 
   fastify.post(
-    "/posts",
+    root,
     {
       onRequest: [fastify.jwtauthenticate],
       schema: { body: CreatePostValidate, response: PostResponse },
@@ -39,7 +36,7 @@ const posts: FastifyPluginAsync = async (fastify): Promise<void> => {
   );
 
   fastify.put(
-    "/posts/:id",
+    root + "/:id",
     {
       onRequest: [fastify.jwtauthenticate],
       schema: { body: EditPostValidate, response: PostResponse },
@@ -48,7 +45,7 @@ const posts: FastifyPluginAsync = async (fastify): Promise<void> => {
   );
 
   fastify.delete(
-    "/posts/:id",
+    root + "/:id",
     {
       onRequest: [fastify.jwtauthenticate],
       schema: { response: PostResponse },

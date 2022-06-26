@@ -16,8 +16,9 @@ import {
 } from "../validators/response.validators";
 
 const users: FastifyPluginAsync = async (fastify): Promise<void> => {
+  const root = "/users";
   fastify.put(
-    "/users/:id/change-password",
+    root + "/:id/change-password",
     {
       onRequest: [fastify.jwtauthenticate, isAdmin],
       schema: { body: ChangePasswordForUser },
@@ -26,7 +27,7 @@ const users: FastifyPluginAsync = async (fastify): Promise<void> => {
   );
 
   fastify.get(
-    "/users",
+    root,
     {
       onRequest: [fastify.jwtauthenticate, isAdmin],
       schema: { response: UsersArrayResponse },
@@ -35,7 +36,7 @@ const users: FastifyPluginAsync = async (fastify): Promise<void> => {
   );
 
   fastify.get(
-    "/users/:id",
+    root + "/:id",
     {
       onRequest: [fastify.jwtauthenticate, isAdmin],
       schema: { response: UserFullResponse },
@@ -44,7 +45,7 @@ const users: FastifyPluginAsync = async (fastify): Promise<void> => {
   );
 
   fastify.put(
-    "/users/:id",
+    root + "/:id",
     {
       onRequest: [fastify.jwtauthenticate, isAdmin],
       schema: { body: EditUserValidate, response: UserFullResponse },
@@ -53,7 +54,7 @@ const users: FastifyPluginAsync = async (fastify): Promise<void> => {
   );
 
   fastify.delete(
-    "/users/:id",
+    root + "/:id",
     {
       onRequest: [fastify.jwtauthenticate, isAdmin],
       schema: { response: UserFullResponse },

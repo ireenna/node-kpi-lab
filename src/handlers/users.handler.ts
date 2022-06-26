@@ -1,11 +1,11 @@
-import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { User } from "../config/models/user";
-// import * as JWT from 'jwt-decode';
-import jwtDecode, { JwtPayload } from "jwt-decode";
+import jwtDecode from "jwt-decode";
 import { IUser } from "../config/interfaces/user";
 import { FromSchema } from "json-schema-to-ts";
 import { EditUserValidate } from "../validators/auth.validators";
 
+const UserNotFound = "User was not found";
 export const getAllUsers = async (
   request: FastifyRequest,
   reply: FastifyReply
@@ -22,8 +22,8 @@ export const isAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const token = request.headers.authorization?.replace("Bearer ", "");
     const isAdmin = jwtDecode<IUser>(token ?? "").isAdmin;
-      if (!isAdmin) {
-          return reply.unavailableForLegalReasons();
+    if (!isAdmin) {
+      return reply.unavailableForLegalReasons();
     }
   } catch (error) {
     return error;
@@ -40,10 +40,10 @@ export const getUserById = async (
 ) => {
   try {
     const user = await User.findById(request.params.id).exec();
-      if (!user) return reply.notFound("User was not found");
+    if (!user) return reply.notFound(UserNotFound);
     return user;
   } catch (error) {
-      return error;
+    return error;
   }
 };
 
@@ -61,16 +61,18 @@ export const updateUser = async (
     const { id } = request.params;
     const { name, email, avatar, isAdmin } = request.body;
     const userToFind = await User.findById(id).exec();
-      if (userToFind && userToFind.isAdmin) {
-          return reply.unavailableForLegalReasons("You are not allowed to edit admins");
+    if (userToFind && userToFind.isAdmin) {
+      return reply.unavailableForLegalReasons(
+        "You are not allowed to edit admins"
+      );
     }
     const userToUpdate = await User.findByIdAndUpdate(
       id,
       { name, email, avatar, isAdmin },
       { new: true }
     ).exec();
-      if (!userToUpdate) {
-          return reply.notFound("User was not found");
+    if (!userToUpdate) {
+      return reply.notFound(UserNotFound);
     }
     return userToUpdate;
   } catch (error) {
@@ -89,12 +91,14 @@ export const deleteUser = async (
   try {
     const { id } = request.params;
     const userToFind = await User.findById(id).exec();
-      if (userToFind && userToFind.isAdmin) {
-          return reply.unavailableForLegalReasons("You are not allowed to delete admins");
+    if (userToFind && userToFind.isAdmin) {
+      return reply.unavailableForLegalReasons(
+        "You are not allowed to delete admins"
+      );
     }
     const userToDelete = await User.findByIdAndDelete(id).exec();
-      if (!userToDelete) {
-          return reply.notFound("User was not found");
+    if (!userToDelete) {
+      return reply.notFound(UserNotFound);
     }
     return userToDelete;
   } catch (error) {

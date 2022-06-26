@@ -12,9 +12,9 @@ export const getCurrentAccount = async (
     const token = request.headers.authorization?.replace("Bearer ", "");
     const ID = jwtDecode<JwtPayload>(token ?? "").sub;
     const currentUser = await User.findById(ID).exec();
-      if (!currentUser) {
-          return reply.notFound("Current user is not valid.");
-      }
+    if (!currentUser) {
+      return reply.notFound("Current user is not valid.");
+    }
     return reply.send(currentUser);
   } catch (error) {
     return error;
@@ -36,9 +36,9 @@ export const UpdateAccount = async (
       { name, email, avatar },
       { new: true }
     ).exec();
-      if (!user) {
-          return reply.notFound("Current user is not valid.");
-      }
+    if (!user) {
+      return reply.notFound("Current user is not valid.");
+    }
     return user;
   } catch (error) {
     return error;

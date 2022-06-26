@@ -1,10 +1,9 @@
 import { Schema, model } from "mongoose";
 import { IUser } from "../interfaces/user";
 import { compare, hash } from "bcrypt";
-import fastify from "fastify"; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 export const validateEmail = function (email: string) {
-  const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  const re = /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\\.\w{2,3})+$/;
   return re.test(email);
 };
 
@@ -43,7 +42,7 @@ const UserSchema = new Schema<IUser>(
 );
 
 UserSchema.pre("save", async function (next) {
-  if (this.isNew || this.isModified("password")) {
+  if (this.isNew || this.isModified("hashPassword")) {
     this.hashPassword = await hash(this.hashPassword, 10);
   }
   next();

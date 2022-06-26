@@ -12,7 +12,7 @@ import {
 } from "../validators/auth.validators";
 import { FromSchema } from "json-schema-to-ts";
 
-export default fp<FastifyJWTOptions>(async (fastify, opts) => {
+export default fp<FastifyJWTOptions>(async (fastify) => {
   fastify.register(fjwt as any, {
     secret: process.env.JWT,
     decode: {
@@ -24,16 +24,13 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
     },
   });
 
-  fastify.decorate(
-    "jwtauthenticate",
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      try {
-        await request.jwtVerify();
-      } catch (error) {
-        return error;
-      }
+  fastify.decorate("jwtauthenticate", async (request: FastifyRequest) => {
+    try {
+      await request.jwtVerify();
+    } catch (error) {
+      return error;
     }
-  );
+  });
 
   fastify.decorate(
     "sendTokens",
@@ -47,13 +44,13 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
       try {
         const { email, password } = request.body;
         const user = await User.findOne({ email }).exec();
-          if (!user) {
-              return reply.badRequest("Invalid email or password");
+        if (!user) {
+          return reply.badRequest("Invalid email or password");
         }
 
         const isCorrectPassword = await user.validatePassword(password);
         if (!isCorrectPassword) {
-            return reply.badRequest("Invalid email or password");
+          return reply.badRequest("Invalid email or password");
         }
 
         const payload = {
@@ -82,8 +79,8 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
       try {
         const { password, email, name, avatar, isAdmin } = request.body;
         const oldUser = await User.findOne({ email }).exec();
-          if (oldUser) {
-              return reply.badRequest("User Already Exist. Please Login");
+        if (oldUser) {
+          return reply.badRequest("User Already Exist. Please Login");
         }
         const user = await User.create({
           name,
@@ -101,7 +98,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         const token = fastify.jwt.sign(payload, fastify.jwt.options.sign);
         return { access_token: token };
       } catch (error) {
-          return error;
+        return error;
       }
     }
   );
@@ -118,12 +115,14 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         const token = request.headers.authorization?.replace("Bearer ", "");
         const ID = jwtDecode<JwtPayload>(token ?? "").sub;
         const currentUser = await User.findById(ID).exec();
-          if (!currentUser) {
-              return reply.badRequest("Current user is not valid. Please, relogin.");
+        if (!currentUser) {
+          return reply.badRequest(
+            "Current user is not valid. Please, relogin."
+          );
         }
         const isValidPW = await currentUser.validatePassword(oldPassword);
-          if (!isValidPW) {
-              return reply.badRequest("Old password is wrong");
+        if (!isValidPW) {
+          return reply.badRequest("Old password is wrong");
         }
         const user = await User.findByIdAndUpdate(
           ID,
@@ -159,11 +158,13 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
       const { id } = request.params;
       const { newPassword } = request.body;
       const userToFind = await User.findById(id);
-        if (userToFind && userToFind.isAdmin) {
-            return reply.unavailableForLegalReasons("You are not allowed to change password of admins");
+      if (userToFind && userToFind.isAdmin) {
+        return reply.unavailableForLegalReasons(
+          "You are not allowed to change password of admins"
+        );
       }
-        if (!userToFind) {
-            return reply.notFound("User was not found");
+      if (!userToFind) {
+        return reply.notFound("User was not found");
       }
       const user = await User.findByIdAndUpdate(
         id,
@@ -187,15 +188,9 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
 declare module "fastify" {
   export interface FastifyInstance {
     jwtauthenticate: any;
-    sendTokens: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-    registr: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
-    changePassword: (
-      request: FastifyRequest,
-      reply: FastifyReply
-    ) => Promise<void>;
-    changePasswordForUser: (
-      request: FastifyRequest,
-      reply: FastifyReply
-    ) => Promise<void>;
+    sendTokens: () => Promise<void>;
+    registr: () => Promise<void>;
+    changePassword: () => Promise<void>;
+    changePasswordForUser: () => Promise<void>;
   }
 }

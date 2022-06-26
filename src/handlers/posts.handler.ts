@@ -8,10 +8,9 @@ import {
   CreatePostValidate,
 } from "../validators/post.validators";
 
-export const getAllPosts = async (
-  request: FastifyRequest,
-  reply: FastifyReply
-) => {
+const postNotFound = "Post was not found";
+
+export const getAllPosts = async () => {
   try {
     return await Post.find({}).exec();
   } catch (error) {
@@ -29,12 +28,13 @@ export const getPostById = async (
 ) => {
   try {
     const post = await Post.findById(request.params.id).exec();
-    if (!post)
-        return reply.notFound("Post was not found");
+    if (!post) {
+      return reply.notFound(postNotFound);
+    }
 
     return post;
   } catch (error) {
-      return error;
+    return error;
   }
 };
 
@@ -56,15 +56,14 @@ export const createPost = async (
       creator: ID,
     });
     if (post) {
-        await User.findByIdAndUpdate(ID,
-            {
-                $push: {
-                    posts: post,
-                },
-            }).exec();
-        return post;
+      await User.findByIdAndUpdate(ID, {
+        $push: {
+          posts: post,
+        },
+      }).exec();
+      return post;
     } else {
-        return reply.internalServerError();
+      return reply.internalServerError();
     }
   } catch (error) {
     return error;
@@ -84,15 +83,15 @@ export const updatePost = async (
   try {
     const { id } = request.params;
     const postToFind = await Post.findById(id);
-      if (!postToFind) {
-          return reply.notFound("Post was not found");
+    if (!postToFind) {
+      return reply.notFound(postNotFound);
     } else {
       const token = request.headers.authorization?.replace("Bearer ", "");
       const ID = jwtDecode<JwtPayload>(token ?? "").sub;
       const creator = postToFind?.creator.valueOf();
-          if (creator !== ID) {
-              return reply.unavailableForLegalReasons();
-          } else {
+      if (creator !== ID) {
+        return reply.unavailableForLegalReasons();
+      } else {
         const { title, content, category, tags } = request.body;
 
         return await Post.findByIdAndUpdate(
@@ -118,14 +117,14 @@ export const deletePost = async (
   try {
     const { id } = request.params;
     const postToFind = await Post.findById(id).exec();
-      if (!postToFind) {
-          return reply.notFound("Post was not found");
+    if (!postToFind) {
+      return reply.notFound(postNotFound);
     } else {
       const token = request.headers.authorization?.replace("Bearer ", "");
       const ID = jwtDecode<JwtPayload>(token ?? "").sub;
       const creator = postToFind?.creator.valueOf();
-          if (creator !== ID) {
-              return reply.unavailableForLegalReasons();
+      if (creator !== ID) {
+        return reply.unavailableForLegalReasons();
       }
       return await Post.findByIdAndDelete(id).exec();
     }
