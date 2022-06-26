@@ -42,4 +42,4 @@ Posts:
 - updatedAt: string;
 - creator: Schema.Types.ObjectId;
 
-<img src="./assets/databaseSchema.png width="128"/>
+![Screenshot](assets/databaseSchema.png)
