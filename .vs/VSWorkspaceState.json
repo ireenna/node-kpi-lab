@@ -1,14 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\.husky",
+    "\\logs",
+    "\\logs\\error",
+    "\\logs\\info",
     "\\src",
-    "\\src\\config\\interfaces",
-    "\\src\\handlers",
+    "\\src\\config",
+    "\\src\\config\\models",
     "\\src\\plugins",
     "\\src\\routes",
     "\\src\\validators"
   ],
-  "SelectedNode": "\\src\\plugins\\jwt.ts",
+  "SelectedNode": "\\logs\\info\\api.log",
   "PreviewInSolutionExplorer": false
 }

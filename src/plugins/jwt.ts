@@ -93,7 +93,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
           email: email.toLowerCase(),
           avatar,
           isAdmin,
-          password,
+          hashPassword: password,
         });
         const payload = {
           sub: user!._id,
@@ -133,7 +133,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
         }
         const user = await User.findByIdAndUpdate(
           ID,
-          { password: await hash(newPassword, 10) },
+            { hashPassword: await hash(newPassword, 10) },
           { new: true }
         ).exec();
 
@@ -177,7 +177,7 @@ export default fp<FastifyJWTOptions>(async (fastify, opts) => {
       }
       const user = await User.findByIdAndUpdate(
         id,
-        { password: newPassword },
+        { hashPassword: newPassword },
         { new: true }
       ).exec();
 

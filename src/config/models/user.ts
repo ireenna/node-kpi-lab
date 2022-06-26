@@ -20,7 +20,7 @@ const UserSchema = new Schema<IUser>(
       immutable: true,
       validate: [validateEmail, "Please, write valid email."],
     },
-    password: {
+    hashPassword: {
       type: String,
       required: true,
     },
@@ -44,7 +44,7 @@ const UserSchema = new Schema<IUser>(
 
 UserSchema.pre("save", async function (next) {
   if (this.isNew || this.isModified("password")) {
-    this.password = await hash(this.password, 10);
+      this.hashPassword = await hash(this.hashPassword, 10);
   }
   next();
 });
@@ -52,7 +52,7 @@ UserSchema.pre("save", async function (next) {
 UserSchema.methods.validatePassword = async function (
   password: string
 ): Promise<boolean> {
-  return compare(password, this.password);
+  return compare(password, this.hashPassword);
 };
 
 export const User = model<IUser>("User", UserSchema);

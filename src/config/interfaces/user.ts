@@ -4,7 +4,7 @@ import { Document, Schema } from "mongoose";
 export interface IUser extends Document {
   name: string;
   email: string;
-  password: string;
+  hashPassword: string;
   avatar: string;
   isAdmin: boolean;
   posts: Schema.Types.ObjectId[];

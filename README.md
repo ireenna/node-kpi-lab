@@ -41,3 +41,5 @@ Posts:
 - createdAt: string;
 - updatedAt: string;
 - creator: Schema.Types.ObjectId;
+
+<img src="./assets/databaseSchema.png width="128"/>
