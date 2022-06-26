@@ -4,9 +4,7 @@ import { User } from "../config/models/user";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 import { IUser } from "../config/interfaces/user";
 import { FromSchema } from "json-schema-to-ts";
-import {EditUserValidate } from "../validators/auth.validators";
-
-
+import { EditUserValidate } from "../validators/auth.validators";
 
 export const getAllUsers = async (
   request: FastifyRequest,
@@ -23,9 +21,9 @@ export const getAllUsers = async (
 export const isAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const token = request.headers.authorization?.replace("Bearer ", "");
-      const isAdmin = jwtDecode<IUser>(token ?? "").isAdmin;
-      if (!isAdmin) {
-        reply.code(401).send("Current user doesn't have an access");
+    const isAdmin = jwtDecode<IUser>(token ?? "").isAdmin;
+    if (!isAdmin) {
+      reply.code(401).send("Current user doesn't have an access");
     }
   } catch (error) {
     console.error(error);
@@ -55,7 +53,7 @@ export const updateUser = async (
     Params: {
       id: string;
     };
-      Body: FromSchema<typeof EditUserValidate>;
+    Body: FromSchema<typeof EditUserValidate>;
   }>,
 
   reply: FastifyReply

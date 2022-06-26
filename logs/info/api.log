@@ -12,3 +12,5 @@
 {"level":"info","message":"MongoDB is connected","timestamp":"2022-06-26T02:21:41+03:00"}
 {"level":"info","message":"Server listening at http://127.0.0.1:3000","timestamp":"2022-06-26T02:21:41+03:00"}
 {"level":"info","message":"Server listening at http://[::1]:3000","timestamp":"2022-06-26T02:21:41+03:00"}
+{"level":"info","message":"MongoDB is connected","timestamp":"2022-06-26T08:51:41+03:00"}
+{"level":"info","message":"MongoDB is connected","timestamp":"2022-06-26T10:02:07+03:00"}

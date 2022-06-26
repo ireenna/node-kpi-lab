@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { IUser } from "../interfaces/user";
 import { compare, hash } from "bcrypt";
-import fastify from "fastify";
+import fastify from "fastify"; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 export const validateEmail = function (email: string) {
   const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -18,7 +18,7 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: true,
       immutable: true,
-      validate: [validateEmail, "Please, write valid email."],
+      validate: [validateEmail, "Please, write valid email"],
     },
     password: {
       type: String,

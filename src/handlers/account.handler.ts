@@ -1,9 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { User } from "../config/models/user";
 import jwtDecode, { JwtPayload } from "jwt-decode";
-import {
-    EditAccountValidate
-} from "../validators/auth.validators";
+import { EditAccountValidate } from "../validators/auth.validators";
 import { FromSchema } from "json-schema-to-ts";
 
 export const getCurrentAccount = async (
@@ -18,7 +16,7 @@ export const getCurrentAccount = async (
       reply.code(401);
       return "Current user is not valid.";
     }
-      return currentUser;
+    return currentUser;
   } catch (error) {
     console.log(error);
     reply.code(500);
@@ -28,7 +26,7 @@ export const getCurrentAccount = async (
 
 export const UpdateAccount = async (
   request: FastifyRequest<{
-      Body: FromSchema<typeof EditAccountValidate>;
+    Body: FromSchema<typeof EditAccountValidate>;
   }>,
   reply: FastifyReply
 ) => {
